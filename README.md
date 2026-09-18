@@ -22,6 +22,11 @@ El objetivo principal es brindar al estudiante o desarrollador un entorno de tra
     - **Alimentar:** Rellena la barra de energía de Mochi con pescaditos.
     - **Cambiar Look:** Permite alternar accesorios (Gafas de Hacker, Auriculares Gamer, Sombrero de Mago).
     - **Hablar:** Consejos de estudio y recordatorios de buenas prácticas de programación (commits frecuentes, hidratación, modularización).
+- **🚀 Mochi Universal & Modo Flotante (Arrastrable por la pantalla):**
+  - Permite liberar a Mochi para que flote por toda la pantalla del navegador mediante **Drag & Drop** (puedes moverlo, soltarlo sobre cualquier elemento y hacer doble clic para que se duerma).
+- **🌐 Bookmarklet "Mochi Everywhere" (Llevarlo a otras webs):**
+  - Incluye un marcador de navegador listo para arrastrar a la barra de favoritos (`Ctrl+Shift+B`).
+  - Al hacer clic en el marcador desde **Google, YouTube, Wikipedia o GitHub**, ¡Mochi aparece en esa página web como compañero de navegación interactivo!
 - **⏱️ Temporizador Pomodoro Integrado:**
   - Modos de trabajo: **Concentración (25 min)**, **Descanso Corto (5 min)** y **Descanso Largo (15 min)**.
   - Anillo de progreso SVG dinámico con cuenta regresiva en tiempo real y actualización del título de pestaña.
