@@ -1,5 +1,6 @@
 /**
  * PURRFOCUS - LÓGICA DE INTERACCIÓN, POMODORO Y SÍNTESIS DE AUDIO
+ * Versión 2.0: Animaciones mejoradas, seguimiento ocular, modo dormir y diálogos contextuales
  * Proyecto de Examen desarrollado con Gemini CLI
  */
 
@@ -15,6 +16,10 @@ document.addEventListener('DOMContentLoaded', () => {
     accessoryIndex: 0, // 0: ninguno, 1: gafas, 2: auriculares, 3: sombrero
     accessories: ['none', 'glasses', 'headphones', 'hat'],
     
+    // Estados del gato
+    isSleeping: false,
+    isFocused: false,
+
     // Temporizador
     timerDuration: 25 * 60, // 25 min en segundos
     timeLeft: 25 * 60,
@@ -26,23 +31,53 @@ document.addEventListener('DOMContentLoaded', () => {
     ambientPlaying: false
   };
 
-  // Frases de Mochi (Estilo BonziBuddy)
+  // Frases de Mochi (Diálogos inteligentes según el contexto)
   const mochiQuotes = {
     welcome: [
       "¡Miau! Hola, soy <strong>Mochi</strong>. Hoy vamos a romperla en el examen. ¡Acaríciame para empezar!",
-      "¿Sabías que los gatos ronronean a una frecuencia de 20-140 Hz? ¡Eso mejora la concentración!",
-      "¡Listo para una sesión productiva! Define tu meta de hoy en las tareas de abajo."
+      "¿Sabías que los gatos ronronean a 20-140 Hz? ¡Eso estimula la concentración y el aprendizaje!",
+      "¡Listo para una sesión de código! Define tus metas en la lista de abajo."
     ],
-    pet: [
+    focusMode: [
+      "¡Modo Concentración activado! 🎯 25 minutos de código puro. Cero distracciones. ¡Vamos!",
+      "¡Ojos en la meta! 🚀 25 minutos para avanzar con todo. ¡Yo te acompaño!",
+      "¡A programar! 💻 Divide el problema en funciones pequeñas y lo resolvemos juntos."
+    ],
+    shortBreak: [
+      "¡Hora del recreo! ☕ Estira las piernas, toma agua y descansa la vista. Yo me echo una siesta de 5 min... ¡Zzz!",
+      "¡Pausa corta merecida! 🥛 Respira hondo y relaja los hombros. Mochi entra en modo siestita... ¡Zzz!"
+    ],
+    longBreak: [
+      "¡Descanso largo bien merecido! 🛋️ Aléjate del monitor, camina un poco. Te guardo el puesto mientras duermo plácidamente... ¡Zzz!",
+      "¡Gran trabajo hasta aquí! 🎉 15 minutos para recargar energías por completo. ¡Dulces sueños felinos... Zzz!"
+    ],
+    timerRunningFocus: [
+      "¡Sesión de enfoque en marcha! 💻 Mochi te acompaña con atención absoluta. ¡A romperla!",
+      "¡Concéntrate! Cada línea de código te acerca más a la meta. 🎯"
+    ],
+    timerRunningBreak: [
+      "Zzz... Mochi está durmiendo plácidamente. ¡Aprovecha tus minutos de relax! 💤",
+      "Zzz... Relájate, no toques el teclado durante el descanso... zzz... 😴"
+    ],
+    petAwake: [
       "¡Puurrr! Me encantan los mimos. ¡Mi felicidad aumentó! ❤️",
-      "¡Prrrr! Siento cómo tu código compila a la primera.",
+      "¡Prrrr! Siento cómo ese código va a compilar a la primera.",
       "¡Miau suave! Eres el mejor compañero de estudio.",
       "¡Ronroneo terapéutico activado! (+Felicidad)"
     ],
-    feed: [
+    petSleeping: [
+      "Zzz... *ronroneo dormilón*... miau suave... qué ricos mimos entre sueños... ❤️",
+      "Zzz... mmm... 5 minutitos más... *ronronea abrazado a la almohada*... zzz...",
+      "Zzz... soñando con un código libre de bugs... ¡purrrr!... zzz... 💤"
+    ],
+    feedAwake: [
       "¡Ñam ñam! ¡Qué rico pescadito! 🐟 ¡Energía al 100%!",
       "¡Delicioso! Un buen refrigerio siempre mejora la productividad.",
-      "¡Miau glotón! Gracias por el snack, ahora a seguir concentrados."
+      "¡Miau glotón! Gracias por el snack, ahora a seguir con todo."
+    ],
+    feedSleeping: [
+      "Mmm... ¿pescadito en mis sueños? *ñam ñam dormido*... qué delicia... zzz... 🐟",
+      "Zzz... hasta dormido disfruto un buen pez... ¡gracias!... zzz... ✨"
     ],
     accessories: [
       "¡Look natural! Sencillo, elegante y veloz.",
@@ -51,15 +86,20 @@ document.addEventListener('DOMContentLoaded', () => {
       "¡Sombrero de Mago! 🧙‍♂️ '¡Que los bugs desaparezcan por arte de magia!'"
     ],
     motivation: [
-      "Consejo felino: Si una función tiene más de 30 líneas, ¡divídela!",
+      "Consejo felino: Si una función tiene más de 30 líneas, ¡divídela en partes!",
       "Recuerda hidratarte: toma un sorbo de agua ahora mismo. 💧",
       "¡Estás avanzando genial! Cada commit cuenta.",
-      "¿Te trabaste con un bug? Explícamelo a mí (técnica del patito de goma felino).",
+      "¿Te trabaste con un bug? Explícamelo a mí (técnica del patito felino).",
       "No olvides hacer 'git commit -m' con mensajes descriptivos. 🐱"
+    ],
+    sleepyAdvice: [
+      "Zzz... 'Un buen programador también sabe cuándo descansar'... zzz...",
+      "Zzz... Soñando con bases de datos que nunca se caen... ☁️",
+      "Zzz... *ronroneo suave*... deja descansar tus ojos de la pantalla..."
     ],
     focusComplete: [
       "¡TIEMPO! 🎉 ¡Gran trabajo completando el bloque de concentración!",
-      "¡Excelente sesión! Tómate 5 minutos de descanso, estira las patitas."
+      "¡Excelente sesión! Tómate tu descanso, estira las patitas."
     ]
   };
 
@@ -71,6 +111,14 @@ document.addEventListener('DOMContentLoaded', () => {
   const catDialogue = document.getElementById('catDialogue');
   const dialogueText = document.getElementById('dialogueText');
   const effectsLayer = document.getElementById('effectsLayer');
+
+  // Elementos de Modo Dormir y Ojos
+  const catModeBadge = document.getElementById('catModeBadge');
+  const badgeIcon = document.getElementById('badgeIcon');
+  const badgeText = document.getElementById('badgeText');
+  const eyeGroupLeft = document.getElementById('eyeGroupLeft');
+  const eyeGroupRight = document.getElementById('eyeGroupRight');
+  const accSleepCap = document.getElementById('accSleepCap');
 
   // Stats
   const happinessBar = document.getElementById('happinessBar');
@@ -116,7 +164,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // ==========================================
   // 3. SINTETIZADOR DE AUDIO (WEB AUDIO API)
-  // Sin archivos externos de audio
   // ==========================================
   let audioCtx = null;
   let ambientSource = null;
@@ -134,7 +181,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // Sonido de Miau Sintético
+  // Sonido de Miau Despierto
   function playMeowSound() {
     if (!state.soundEnabled) return;
     initAudioContext();
@@ -146,10 +193,9 @@ document.addEventListener('DOMContentLoaded', () => {
       const gain = audioCtx.createGain();
 
       osc.type = 'sine';
-      // Curva de tono felino: sube y baja suavemente
       osc.frequency.setValueAtTime(440, now);
-      osc.frequency.exponentialRampToValueAtTime(780, now + 0.15);
-      osc.frequency.exponentialRampToValueAtTime(520, now + 0.35);
+      osc.frequency.exponentialRampToValueAtTime(800, now + 0.15);
+      osc.frequency.exponentialRampToValueAtTime(530, now + 0.35);
 
       gain.gain.setValueAtTime(0.01, now);
       gain.gain.linearRampToValueAtTime(0.18, now + 0.08);
@@ -160,9 +206,35 @@ document.addEventListener('DOMContentLoaded', () => {
 
       osc.start(now);
       osc.stop(now + 0.36);
-    } catch (e) {
-      // Ignorar restricciones de audio del navegador
-    }
+    } catch (e) {}
+  }
+
+  // Sonido de Ronroneo Dormilón Suave
+  function playSleepyPurrSound() {
+    if (!state.soundEnabled) return;
+    initAudioContext();
+    if (!audioCtx) return;
+
+    try {
+      const now = audioCtx.currentTime;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(95, now);
+      osc.frequency.linearRampToValueAtTime(115, now + 0.2);
+      osc.frequency.linearRampToValueAtTime(90, now + 0.45);
+
+      gain.gain.setValueAtTime(0.01, now);
+      gain.gain.linearRampToValueAtTime(0.12, now + 0.15);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.45);
+
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+
+      osc.start(now);
+      osc.stop(now + 0.46);
+    } catch (e) {}
   }
 
   // Sonido de Campanada / Victoria (Timer o Tarea)
@@ -172,7 +244,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!audioCtx) return;
 
     try {
-      const notes = [523.25, 659.25, 783.99, 1046.50]; // Acorde C Major (C, E, G, C)
+      const notes = [523.25, 659.25, 783.99, 1046.50]; // Acorde C Mayor
       notes.forEach((freq, idx) => {
         const now = audioCtx.currentTime + (idx * 0.09);
         const osc = audioCtx.createOscillator();
@@ -199,7 +271,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!audioCtx) return;
 
     if (state.ambientPlaying) {
-      // Detener
       if (ambientGain) {
         ambientGain.gain.linearRampToValueAtTime(0.001, audioCtx.currentTime + 0.5);
         setTimeout(() => {
@@ -214,14 +285,13 @@ document.addEventListener('DOMContentLoaded', () => {
       ambientStateText.textContent = "Activar Audio";
       sayDialogue("Audio ambiental pausado.");
     } else {
-      // Iniciar generador de ruido suave (Brownian/Pink noise)
       const bufferSize = audioCtx.sampleRate * 2;
       const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
       const output = noiseBuffer.getChannelData(0);
       let lastOut = 0.0;
       for (let i = 0; i < bufferSize; i++) {
         const white = Math.random() * 2 - 1;
-        output[i] = (lastOut + (0.02 * white)) / 1.02; // Ruido marrón (sonido de lluvia/río)
+        output[i] = (lastOut + (0.02 * white)) / 1.02;
         lastOut = output[i];
         output[i] *= 3.5;
       }
@@ -230,7 +300,6 @@ document.addEventListener('DOMContentLoaded', () => {
       ambientSource.buffer = noiseBuffer;
       ambientSource.loop = true;
 
-      // Filtro de paso bajo para hacerlo muy suave y cálido
       const filter = audioCtx.createBiquadFilter();
       filter.type = 'lowpass';
       filter.frequency.setValueAtTime(450, audioCtx.currentTime);
@@ -252,12 +321,98 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ==========================================
-  // 4. DIÁLOGOS Y EFECTOS VISUALES
+  // 4. CONTROLADOR DE ESTADO DEL GATITO (DORMIR / DESPERTAR)
+  // ==========================================
+  function setCatSleep(sleeping, mode = 'short-break') {
+    state.isSleeping = sleeping;
+
+    if (sleeping) {
+      catCharacter.classList.add('sleeping');
+      catCharacter.classList.remove('focused');
+      accSleepCap.classList.add('active');
+
+      // Ocultar temporalmente otros accesorios mientras duerme
+      accGlasses.classList.remove('active');
+      accHeadphones.classList.remove('active');
+      accHat.classList.remove('active');
+
+      // Resetear posición de ojos
+      if (eyeGroupLeft) eyeGroupLeft.style.transform = 'translate(0px, 0px)';
+      if (eyeGroupRight) eyeGroupRight.style.transform = 'translate(0px, 0px)';
+
+      badgeIcon.textContent = "💤";
+      badgeText.textContent = (mode === 'long-break') ? "Siesta Profunda (15m)" : "Siestita de Descanso (5m)";
+
+      if (mode === 'long-break') {
+        const q = mochiQuotes.longBreak[Math.floor(Math.random() * mochiQuotes.longBreak.length)];
+        sayDialogue(q);
+      } else {
+        const q = mochiQuotes.shortBreak[Math.floor(Math.random() * mochiQuotes.shortBreak.length)];
+        sayDialogue(q);
+      }
+    } else {
+      catCharacter.classList.remove('sleeping');
+      accSleepCap.classList.remove('active');
+
+      // Restaurar accesorio elegido por el usuario
+      restoreAccessory();
+
+      badgeIcon.textContent = "🐱";
+      badgeText.textContent = "Despierto & Atento";
+
+      const q = mochiQuotes.focusMode[Math.floor(Math.random() * mochiQuotes.focusMode.length)];
+      sayDialogue(q);
+
+      // Pequeña animación de saludo con la patita al despertar
+      catCharacter.classList.add('waving');
+      setTimeout(() => catCharacter.classList.remove('waving'), 1500);
+    }
+  }
+
+  function restoreAccessory() {
+    accGlasses.classList.remove('active');
+    accHeadphones.classList.remove('active');
+    accHat.classList.remove('active');
+    accSleepCap.classList.remove('active');
+
+    const current = state.accessories[state.accessoryIndex];
+    if (current === 'glasses') accGlasses.classList.add('active');
+    if (current === 'headphones') accHeadphones.classList.add('active');
+    if (current === 'hat') accHat.classList.add('active');
+  }
+
+  // ==========================================
+  // 5. SEGUIMIENTO OCULAR INTERACTIVO (CURSOR)
+  // ==========================================
+  window.addEventListener('mousemove', (e) => {
+    if (state.isSleeping) return; // Si duerme, no sigue el cursor
+
+    const rect = catCharacter.getBoundingClientRect();
+    const catCenterX = rect.left + rect.width / 2;
+    const catCenterY = rect.top + rect.height * 0.4; // Altura de los ojos
+
+    const deltaX = e.clientX - catCenterX;
+    const deltaY = e.clientY - catCenterY;
+    const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+
+    if (distance === 0) return;
+
+    // Limitar desplazamiento máximo a 4 píxeles
+    const maxOffset = 4.0;
+    const offsetX = Math.max(-maxOffset, Math.min(maxOffset, (deltaX / 120) * maxOffset));
+    const offsetY = Math.max(-maxOffset, Math.min(maxOffset, (deltaY / 120) * maxOffset));
+
+    if (eyeGroupLeft) eyeGroupLeft.style.transform = `translate(${offsetX}px, ${offsetY}px)`;
+    if (eyeGroupRight) eyeGroupRight.style.transform = `translate(${offsetX}px, ${offsetY}px)`;
+  });
+
+  // ==========================================
+  // 6. DIÁLOGOS Y EFECTOS VISUALES
   // ==========================================
   function sayDialogue(text) {
     dialogueText.innerHTML = text;
     catDialogue.style.animation = 'none';
-    void catDialogue.offsetWidth; // Trigger reflow
+    void catDialogue.offsetWidth;
     catDialogue.style.animation = 'bubbleBounce 4s ease-in-out infinite';
   }
 
@@ -266,7 +421,6 @@ document.addEventListener('DOMContentLoaded', () => {
     el.className = 'floating-effect';
     el.textContent = emoji;
     
-    // Posición aleatoria dentro del escenario del gato
     const rect = petStage.getBoundingClientRect();
     const x = Math.random() * (rect.width - 60) + 30;
     const y = rect.height - 50;
@@ -289,21 +443,32 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ==========================================
-  // 5. INTERACCIONES CON MOCHI
+  // 7. INTERACCIONES CON MOCHI
   // ==========================================
   function petCat() {
+    if (state.isSleeping) {
+      state.happiness = Math.min(100, state.happiness + 5);
+      updateStats();
+      playSleepyPurrSound();
+      spawnEffect('💤');
+      setTimeout(() => spawnEffect('❤️'), 150);
+
+      const q = mochiQuotes.petSleeping[Math.floor(Math.random() * mochiQuotes.petSleeping.length)];
+      sayDialogue(q);
+      return;
+    }
+
     state.happiness = Math.min(100, state.happiness + 5);
     updateStats();
     playMeowSound();
     
     for (let i = 0; i < 3; i++) {
-      setTimeout(() => spawnEffect('❤️'), i * 150);
+      setTimeout(() => spawnEffect('❤️'), i * 140);
     }
 
-    const quote = mochiQuotes.pet[Math.floor(Math.random() * mochiQuotes.pet.length)];
+    const quote = mochiQuotes.petAwake[Math.floor(Math.random() * mochiQuotes.petAwake.length)];
     sayDialogue(quote);
 
-    // Animación de pulso
     catCharacter.style.transform = 'scale(1.1) rotate(2deg)';
     setTimeout(() => {
       catCharacter.style.transform = '';
@@ -311,6 +476,18 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function feedCat() {
+    if (state.isSleeping) {
+      state.energy = Math.min(100, state.energy + 10);
+      updateStats();
+      playSleepyPurrSound();
+      spawnEffect('🐟');
+      setTimeout(() => spawnEffect('✨'), 200);
+
+      const q = mochiQuotes.feedSleeping[Math.floor(Math.random() * mochiQuotes.feedSleeping.length)];
+      sayDialogue(q);
+      return;
+    }
+
     state.energy = Math.min(100, state.energy + 10);
     state.happiness = Math.min(100, state.happiness + 3);
     updateStats();
@@ -319,22 +496,19 @@ document.addEventListener('DOMContentLoaded', () => {
     spawnEffect('🐟');
     setTimeout(() => spawnEffect('✨'), 200);
 
-    const quote = mochiQuotes.feed[Math.floor(Math.random() * mochiQuotes.feed.length)];
+    const quote = mochiQuotes.feedAwake[Math.floor(Math.random() * mochiQuotes.feedAwake.length)];
     sayDialogue(quote);
   }
 
   function cycleAccessory() {
-    state.accessoryIndex = (state.accessoryIndex + 1) % state.accessories.length;
-    
-    // Ocultar todos
-    accGlasses.classList.remove('active');
-    accHeadphones.classList.remove('active');
-    accHat.classList.remove('active');
+    if (state.isSleeping) {
+      sayDialogue("Zzz... Deja dormir a Mochi con su gorrito de noche... Cuando despierte cambiamos de look. 💤");
+      playSleepyPurrSound();
+      return;
+    }
 
-    const current = state.accessories[state.accessoryIndex];
-    if (current === 'glasses') accGlasses.classList.add('active');
-    if (current === 'headphones') accHeadphones.classList.add('active');
-    if (current === 'hat') accHat.classList.add('active');
+    state.accessoryIndex = (state.accessoryIndex + 1) % state.accessories.length;
+    restoreAccessory();
 
     const quote = mochiQuotes.accessories[state.accessoryIndex];
     sayDialogue(quote);
@@ -342,7 +516,18 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function talkCat() {
+    if (state.isSleeping) {
+      playSleepyPurrSound();
+      const q = mochiQuotes.sleepyAdvice[Math.floor(Math.random() * mochiQuotes.sleepyAdvice.length)];
+      sayDialogue(q);
+      return;
+    }
+
     playMeowSound();
+    // Saludar con la patita al hablar
+    catCharacter.classList.add('waving');
+    setTimeout(() => catCharacter.classList.remove('waving'), 1200);
+
     const quote = mochiQuotes.motivation[Math.floor(Math.random() * mochiQuotes.motivation.length)];
     sayDialogue(quote);
   }
@@ -355,9 +540,9 @@ document.addEventListener('DOMContentLoaded', () => {
   meowBtn.addEventListener('click', talkCat);
 
   // ==========================================
-  // 6. TEMPORIZADOR POMODORO
+  // 8. TEMPORIZADOR POMODORO MEJORADO
   // ==========================================
-  const CIRCLE_CIRCUMFERENCE = 2 * Math.PI * 90; // r=90 en SVG
+  const CIRCLE_CIRCUMFERENCE = 2 * Math.PI * 90;
 
   function updateTimerDisplay() {
     const minutes = Math.floor(state.timeLeft / 60);
@@ -367,7 +552,6 @@ document.addEventListener('DOMContentLoaded', () => {
     timeDisplay.textContent = formatted;
     document.title = `(${formatted}) PurrFocus 🐾`;
 
-    // Actualizar anillo SVG
     const progress = state.timeLeft / state.timerDuration;
     const offset = CIRCLE_CIRCUMFERENCE * (1 - progress);
     timerProgressCircle.style.strokeDashoffset = offset;
@@ -380,13 +564,27 @@ document.addEventListener('DOMContentLoaded', () => {
       state.isRunning = false;
       startBtnText.textContent = "Reanudar";
       startTimerBtn.classList.remove('running');
-      sayDialogue("Temporizador pausado. ¡Aquí estaré cuando regreses!");
+      catCharacter.classList.remove('focused');
+
+      if (state.isSleeping) {
+        sayDialogue("Descanso en pausa. ¿Volvemos o nos estiramos un poco más?");
+      } else {
+        sayDialogue("Temporizador pausado. ¡Aquí estaré esperándote!");
+      }
     } else {
       // Iniciar
       state.isRunning = true;
       startBtnText.textContent = "Pausar";
       startTimerBtn.classList.add('running');
-      sayDialogue("¡Sesión en marcha! Concéntrate en tu código.");
+
+      if (state.isSleeping) {
+        const q = mochiQuotes.timerRunningBreak[Math.floor(Math.random() * mochiQuotes.timerRunningBreak.length)];
+        sayDialogue(q);
+      } else {
+        catCharacter.classList.add('focused');
+        const q = mochiQuotes.timerRunningFocus[Math.floor(Math.random() * mochiQuotes.timerRunningFocus.length)];
+        sayDialogue(q);
+      }
 
       state.timerInterval = setInterval(() => {
         if (state.timeLeft > 0) {
@@ -398,15 +596,23 @@ document.addEventListener('DOMContentLoaded', () => {
           state.isRunning = false;
           startBtnText.textContent = "Comenzar Sesión";
           startTimerBtn.classList.remove('running');
+          catCharacter.classList.remove('focused');
 
           playChimeSound();
-          const completeQuote = mochiQuotes.focusComplete[Math.floor(Math.random() * mochiQuotes.focusComplete.length)];
-          sayDialogue(completeQuote);
 
-          state.happiness = Math.min(100, state.happiness + 15);
-          updateStats();
-          for (let i = 0; i < 5; i++) {
-            setTimeout(() => spawnEffect('🎉'), i * 120);
+          if (state.isSleeping) {
+            // El descanso terminó -> despertar al gato
+            setCatSleep(false);
+            sayDialogue("¡Fin del descanso! ⏰ Mochi se despierta recargado. ¡A concentrarse con todo!");
+          } else {
+            // La sesión de enfoque terminó -> felicitar y sugerir descanso
+            const completeQuote = mochiQuotes.focusComplete[Math.floor(Math.random() * mochiQuotes.focusComplete.length)];
+            sayDialogue(completeQuote);
+            state.happiness = Math.min(100, state.happiness + 15);
+            updateStats();
+            for (let i = 0; i < 5; i++) {
+              setTimeout(() => spawnEffect('🎉'), i * 120);
+            }
           }
         }
       }, 1000);
@@ -419,6 +625,7 @@ document.addEventListener('DOMContentLoaded', () => {
     state.timeLeft = state.timerDuration;
     startBtnText.textContent = "Comenzar Sesión";
     startTimerBtn.classList.remove('running');
+    catCharacter.classList.remove('focused');
     updateTimerDisplay();
     sayDialogue("Temporizador reiniciado.");
   }
@@ -431,9 +638,17 @@ document.addEventListener('DOMContentLoaded', () => {
     state.currentMode = modeName;
     startBtnText.textContent = "Comenzar Sesión";
     startTimerBtn.classList.remove('running');
+    catCharacter.classList.remove('focused');
 
     phaseTag.textContent = labelText;
     updateTimerDisplay();
+
+    // Actualizar estado de dormir / despertar del gato según el modo
+    if (modeName === 'short-break' || modeName === 'long-break') {
+      setCatSleep(true, modeName);
+    } else {
+      setCatSleep(false);
+    }
   }
 
   // Listeners del Timer
@@ -458,7 +673,7 @@ document.addEventListener('DOMContentLoaded', () => {
   ambientSoundBtn.addEventListener('click', toggleAmbientSound);
 
   // ==========================================
-  // 7. LISTA DE TAREAS (MISIONES DE ENFOQUE)
+  // 9. LISTA DE TAREAS (MISIONES DE ENFOQUE)
   // ==========================================
   function updateTaskCounter() {
     const total = todoList.querySelectorAll('.todo-item').length;
@@ -485,8 +700,14 @@ document.addEventListener('DOMContentLoaded', () => {
     todoList.appendChild(li);
     todoInput.value = '';
     updateTaskCounter();
-    playMeowSound();
-    sayDialogue(`¡Nueva misión agregada: "${text}"! A por ella.`);
+    
+    if (state.isSleeping) {
+      playSleepyPurrSound();
+      sayDialogue(`*Zzz... anotando meta dormido: "${text}"... zzz...*`);
+    } else {
+      playMeowSound();
+      sayDialogue(`¡Nueva misión agregada: "${text}"! A por ella.`);
+    }
   });
 
   todoList.addEventListener('change', (e) => {
@@ -498,7 +719,14 @@ document.addEventListener('DOMContentLoaded', () => {
         spawnEffect('⭐');
         state.happiness = Math.min(100, state.happiness + 5);
         updateStats();
-        sayDialogue("¡Misión cumplida! Excelente trabajo. Mochi está muy orgulloso.");
+
+        if (state.isSleeping) {
+          sayDialogue("¡Misión cumplida! Hasta en mis sueños celebro tu avance... zzz... ⭐");
+        } else {
+          catCharacter.classList.add('waving');
+          setTimeout(() => catCharacter.classList.remove('waving'), 1200);
+          sayDialogue("¡Misión cumplida! Excelente trabajo. Mochi está muy orgulloso.");
+        }
       } else {
         item.classList.remove('done');
       }
@@ -513,7 +741,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ==========================================
-  // 8. TEMA VISUAL Y CONFIGURACIÓN
+  // 10. TEMA VISUAL Y CONFIGURACIÓN
   // ==========================================
   soundToggleBtn.addEventListener('click', () => {
     state.soundEnabled = !state.soundEnabled;

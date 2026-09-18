@@ -452,7 +452,110 @@ body {
   fill: var(--cat-ear-inner);
 }
 
+/* Badge de Estado de Mochi */
+.cat-mode-badge {
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(13, 17, 23, 0.85);
+  border: 1px solid var(--border-color);
+  padding: 4px 14px;
+  border-radius: 50px;
+  font-size: 0.76rem;
+  font-weight: 800;
+  color: var(--text-main);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 15;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  transition: var(--transition-smooth);
+}
+
+[data-theme="light"] .cat-mode-badge {
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.cat-character.sleeping .cat-mode-badge {
+  border-color: var(--accent-cyan);
+  color: var(--accent-cyan);
+  box-shadow: 0 0 12px rgba(6, 182, 212, 0.35);
+}
+
+.cat-character.focused .cat-mode-badge {
+  border-color: var(--accent-purple);
+  color: var(--accent-purple);
+  box-shadow: 0 0 14px var(--accent-purple-glow);
+}
+
+/* Animación de Zzz flotante cuando duerme */
+.sleep-zzz-container {
+  display: none;
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  z-index: 25;
+  pointer-events: none;
+}
+
+.cat-character.sleeping .sleep-zzz-container {
+  display: flex;
+  gap: 5px;
+}
+
+.zzz {
+  font-family: var(--font-mono);
+  font-weight: 900;
+  color: var(--accent-cyan);
+  text-shadow: 0 0 10px rgba(6, 182, 212, 0.7);
+  opacity: 0;
+  animation: floatZzz 2.6s ease-in-out infinite;
+}
+
+.zzz-1 { font-size: 15px; animation-delay: 0s; }
+.zzz-2 { font-size: 20px; animation-delay: 0.8s; }
+.zzz-3 { font-size: 26px; animation-delay: 1.6s; }
+
+@keyframes floatZzz {
+  0% {
+    opacity: 0;
+    transform: translate(0, 0) scale(0.5);
+  }
+  30% {
+    opacity: 0.95;
+  }
+  75% {
+    opacity: 0.85;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(32px, -52px) scale(1.35);
+  }
+}
+
 /* Ojos del Gatito y Pestañeo */
+.cat-eyes-awake {
+  display: block;
+}
+
+.cat-eyes-sleep {
+  display: none;
+}
+
+.cat-sleep-line {
+  fill: none;
+  stroke: #333333;
+  stroke-width: 3.2;
+  stroke-linecap: round;
+}
+
+#eyeGroupLeft, #eyeGroupRight {
+  transition: transform 0.08s ease-out;
+}
+
 .cat-eye {
   fill: #1a1a1a;
   transform-origin: center;
@@ -468,6 +571,59 @@ body {
   96% { transform: scaleY(0.1); }
 }
 
+/* Estado Durmiendo de Mochi */
+.cat-character.sleeping {
+  animation: sleepBreath 4s ease-in-out infinite;
+}
+
+.cat-character.sleeping .cat-eyes-awake {
+  display: none;
+}
+
+.cat-character.sleeping .cat-eyes-sleep {
+  display: block;
+}
+
+.cat-character.sleeping .cat-tail {
+  animation: tailSleep 5s ease-in-out infinite;
+}
+
+.cat-character.sleeping .cat-blush {
+  opacity: 0.85;
+}
+
+@keyframes sleepBreath {
+  0%, 100% { transform: translateY(0) scale(1, 1); }
+  50% { transform: translateY(4px) scale(1.02, 0.96); }
+}
+
+@keyframes tailSleep {
+  0%, 100% { transform: rotate(0deg); }
+  50% { transform: rotate(6deg); }
+}
+
+/* Estado de Enfoque Profundo */
+.cat-character.focused {
+  filter: drop-shadow(0 0 15px rgba(139, 92, 246, 0.4));
+}
+
+/* Animación de Saludo con la Patita */
+.paw-left {
+  transform-origin: 80px 170px;
+  transition: transform 0.25s ease;
+}
+
+.cat-character.waving .paw-left {
+  animation: pawWave 1.2s ease-in-out infinite;
+}
+
+@keyframes pawWave {
+  0%, 100% { transform: rotate(0deg) translateY(0); }
+  25% { transform: rotate(-35deg) translateY(-14px); }
+  50% { transform: rotate(-20deg) translateY(-8px); }
+  75% { transform: rotate(-35deg) translateY(-14px); }
+}
+
 .cat-nose {
   fill: #e07a5f;
 }
@@ -477,6 +633,7 @@ body {
   stroke: #4a4e69;
   stroke-width: 2.2;
   stroke-linecap: round;
+  transition: transform 0.3s ease;
 }
 
 .cat-blush {
@@ -516,8 +673,16 @@ body {
   font-size: 44px;
 }
 
+.accessory-sleepcap {
+  top: 12px;
+  left: 65px;
+  font-size: 42px;
+}
+
 .accessory.active {
   display: block;
+  animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
   animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 

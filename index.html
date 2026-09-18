@@ -90,6 +90,19 @@
         <!-- El Gatito en SVG/HTML con Animaciones CSS -->
         <div class="cat-character" id="catCharacter" title="¡Haz clic para acariciar a Mochi!">
           
+          <!-- Badge de Estado del Gatito -->
+          <div class="cat-mode-badge" id="catModeBadge">
+            <span class="badge-icon" id="badgeIcon">🐱</span>
+            <span class="badge-text" id="badgeText">Despierto & Atento</span>
+          </div>
+
+          <!-- Animación de Zzz para cuando duerme -->
+          <div class="sleep-zzz-container" id="sleepZzz">
+            <span class="zzz zzz-1">Z</span>
+            <span class="zzz zzz-2">z</span>
+            <span class="zzz zzz-3">z</span>
+          </div>
+
           <!-- Accesorio: Gafas de Hacker -->
           <div class="accessory accessory-glasses" id="accGlasses">
             <span class="glasses-lens">🕶️</span>
@@ -103,6 +116,11 @@
           <!-- Accesorio: Sombrero de Mago -->
           <div class="accessory accessory-hat" id="accHat">
             <span class="hat-mesh">🧙‍♂️</span>
+          </div>
+
+          <!-- Accesorio: Gorro de Dormir -->
+          <div class="accessory accessory-sleepcap" id="accSleepCap">
+            <span class="sleepcap-mesh">💤</span>
           </div>
 
           <!-- Estructura visual del gatito -->
@@ -119,8 +137,8 @@
             <ellipse cx="100" cy="140" rx="22" ry="25" class="cat-chest" />
 
             <!-- Patas delanteras -->
-            <ellipse cx="80" cy="170" rx="12" ry="8" class="cat-paw" />
-            <ellipse cx="120" cy="170" rx="12" ry="8" class="cat-paw" />
+            <ellipse cx="80" cy="170" rx="12" ry="8" class="cat-paw paw-left" id="pawLeft" />
+            <ellipse cx="120" cy="170" rx="12" ry="8" class="cat-paw paw-right" id="pawRight" />
 
             <!-- Cabeza -->
             <circle cx="100" cy="85" r="42" class="cat-head" />
@@ -132,20 +150,30 @@
             <polygon points="135,70 150,30 115,55" class="cat-ear ear-right" />
             <polygon points="132,66 143,38 118,55" class="cat-ear-inner" />
 
-            <!-- Ojos con pestañeo automático -->
-            <g class="cat-eyes">
+            <!-- Ojos Despierto (con pestañeo y seguimiento de cursor) -->
+            <g class="cat-eyes-awake" id="catEyesAwake">
               <!-- Ojo izquierdo -->
-              <ellipse cx="82" cy="85" rx="7" ry="9" class="cat-eye" id="eyeLeft" />
-              <circle cx="80" cy="82" r="2.5" class="eye-shine" />
+              <g id="eyeGroupLeft">
+                <ellipse cx="82" cy="85" rx="7" ry="9" class="cat-eye" id="eyeLeft" />
+                <circle cx="80" cy="82" r="2.5" class="eye-shine" id="shineLeft" />
+              </g>
 
               <!-- Ojo derecho -->
-              <ellipse cx="118" cy="85" rx="7" ry="9" class="cat-eye" id="eyeRight" />
-              <circle cx="116" cy="82" r="2.5" class="eye-shine" />
+              <g id="eyeGroupRight">
+                <ellipse cx="118" cy="85" rx="7" ry="9" class="cat-eye" id="eyeRight" />
+                <circle cx="116" cy="82" r="2.5" class="eye-shine" id="shineRight" />
+              </g>
+            </g>
+
+            <!-- Ojos Durmiendo (Arcos curvos pacíficos) -->
+            <g class="cat-eyes-sleep" id="catEyesSleep">
+              <path d="M 74 86 Q 82 92 90 86" class="cat-sleep-line" />
+              <path d="M 110 86 Q 118 92 126 86" class="cat-sleep-line" />
             </g>
 
             <!-- Nariz y Boca sonriente -->
             <polygon points="97,95 103,95 100,99" class="cat-nose" />
-            <path d="M 94 100 Q 100 105 100 100 Q 100 105 106 100" class="cat-mouth" />
+            <path d="M 94 100 Q 100 105 100 100 Q 100 105 106 100" class="cat-mouth" id="catMouth" />
 
             <!-- Mejillas sonrojadas -->
             <circle cx="73" cy="95" r="6" class="cat-blush" />
