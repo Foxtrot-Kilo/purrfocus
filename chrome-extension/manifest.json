@@ -1,0 +1,17 @@
+{
+  "manifest_version": 3,
+  "name": "Mochi - Tu Compañero Felino Web 🐾",
+  "version": "1.0",
+  "description": "Gatito virtual interactivo y arrastrable que te acompaña en cualquier sitio web (Google, YouTube, GitHub, etc.)",
+  "icons": {},
+  "action": {
+    "default_title": "Mochi Pet"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}

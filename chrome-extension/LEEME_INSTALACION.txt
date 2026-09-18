@@ -1,0 +1,23 @@
+========================================================================
+🐾 EXTENSIÓN DE NAVEGADOR: MOCHI DESKTOP PET
+========================================================================
+
+¿Cómo tener a Mochi en Google, YouTube, Wikipedia, GitHub, etc.?
+
+1. En tu navegador (Google Chrome o Microsoft Edge), ve a la barra de direcciones y escribe:
+   chrome://extensions/
+   (o edge://extensions/ en Edge)
+
+2. En la esquina superior derecha activa el interruptor:
+   "Modo de desarrollador" (Developer Mode).
+
+3. Haz clic en el botón de la esquina superior izquierda:
+   "Cargar descomprimida" (Load unpacked).
+
+4. Selecciona esta carpeta:
+   C:\Users\Alumno\.gemini\antigravity\scratch\purrfocus-web\chrome-extension
+
+¡Listo! A partir de ahora Mochi aparecerá flotando en cualquier página web
+que visites. Puedes arrastrarlo con el ratón a cualquier lugar, hacerle
+doble clic para que duerma o cerrarlo en la X cuando quieras.
+========================================================================

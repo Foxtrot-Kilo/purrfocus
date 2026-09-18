@@ -141,6 +141,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const feedBtn = document.getElementById('feedBtn');
   const jumpBtn = document.getElementById('jumpBtn');
   const crouchBtn = document.getElementById('crouchBtn');
+  const walkBtn = document.getElementById('walkBtn');
+  const stretchBtn = document.getElementById('stretchBtn');
+  const loafBtn = document.getElementById('loafBtn');
+  const groomBtn = document.getElementById('groomBtn');
   const accessoryBtn = document.getElementById('accessoryBtn');
   const meowBtn = document.getElementById('meowBtn');
 
@@ -595,6 +599,66 @@ document.addEventListener('DOMContentLoaded', () => {
     setTimeout(() => catCharacter.classList.remove('crouching'), 650);
   }
 
+  function walkCat() {
+    if (state.isSleeping) {
+      sayDialogue("Zzz... Mochi sueña que camina por un tejado soleado... 💤");
+      playSleepyPurrSound();
+      return;
+    }
+    const isWalking = catCharacter.classList.toggle('walking');
+    catCharacter.classList.remove('jumping', 'crouching', 'loafing', 'stretching', 'grooming');
+    if (isWalking) {
+      playMeowSound();
+      spawnEffect('🐾');
+      sayDialogue("¡De paseo por el código! 🐾 Estirando las patitas por el escenario.");
+    } else {
+      sayDialogue("Mochi se detiene a observar.");
+    }
+  }
+
+  function stretchCat() {
+    if (state.isSleeping) {
+      setCatSleep(false);
+    }
+    catCharacter.classList.remove('jumping', 'crouching', 'walking', 'loafing', 'grooming');
+    catCharacter.classList.add('stretching');
+    playMeowSound();
+    spawnEffect('✨');
+    sayDialogue("*Haaaaam...* 🥱 ¡Qué delicia de estiramiento felino! Mente despejada.");
+    setTimeout(() => catCharacter.classList.remove('stretching'), 1600);
+  }
+
+  function loafCat() {
+    if (state.isSleeping) {
+      sayDialogue("Zzz... Ya está bien acurrucado durmiendo... 😴");
+      playSleepyPurrSound();
+      return;
+    }
+    catCharacter.classList.remove('jumping', 'crouching', 'walking', 'stretching', 'grooming');
+    const isLoaf = catCharacter.classList.toggle('loafing');
+    if (isLoaf) {
+      playSleepyPurrSound();
+      spawnEffect('🍞');
+      sayDialogue("*Modo panecillo activado* 🍞 Mochi esconde las patitas y se relaja calientito.");
+    } else {
+      sayDialogue("Mochi se levanta y sacude el pelaje.");
+    }
+  }
+
+  function groomCat() {
+    if (state.isSleeping) {
+      sayDialogue("Zzz... limpiando bigotes entre sueños... 💤");
+      playSleepyPurrSound();
+      return;
+    }
+    catCharacter.classList.remove('jumping', 'crouching', 'walking', 'stretching', 'loafing');
+    catCharacter.classList.add('grooming');
+    playMeowSound();
+    spawnEffect('🧼');
+    sayDialogue("*Limpia que te limpia...* 🧼 Mochi se asea la carita y las orejas con la patita.");
+    setTimeout(() => catCharacter.classList.remove('grooming'), 1500);
+  }
+
   function petCat() {
     if (state.isSleeping) {
       state.happiness = Math.min(100, state.happiness + 5);
@@ -702,6 +766,10 @@ document.addEventListener('DOMContentLoaded', () => {
   feedBtn.addEventListener('click', feedCat);
   jumpBtn.addEventListener('click', jumpCat);
   crouchBtn.addEventListener('click', crouchCat);
+  if (walkBtn) walkBtn.addEventListener('click', walkCat);
+  if (stretchBtn) stretchBtn.addEventListener('click', stretchCat);
+  if (loafBtn) loafBtn.addEventListener('click', loafCat);
+  if (groomBtn) groomBtn.addEventListener('click', groomCat);
   accessoryBtn.addEventListener('click', cycleAccessory);
   meowBtn.addEventListener('click', talkCat);
 
@@ -821,20 +889,191 @@ document.addEventListener('DOMContentLoaded', () => {
   laserTarget.addEventListener('click', catchLaser);
   closeLaserGameBtn.addEventListener('click', closeLaserGame);
 
-  // Modo Flotante / Arrastrable en Pantalla
+  // Modo Flotante / Arrastrable en Pantalla (Directo en DOM, sin fetch ni bloqueo de script)
   const spawnFloatingMochiBtn = document.getElementById('spawnFloatingMochiBtn');
   if (spawnFloatingMochiBtn) {
     spawnFloatingMochiBtn.addEventListener('click', () => {
       const existing = document.getElementById('mochi-universal-pet-container');
       if (existing) {
         existing.remove();
-        sayDialogue("Mochi ha vuelto a su camita principal. 🐾");
-      } else {
-        const script = document.createElement('script');
-        script.src = 'js/mochi-pet.js';
-        document.body.appendChild(script);
-        sayDialogue("¡Mochi liberado por la pantalla! 🚀 Arrástrame con el mouse o haz doble clic para que duerma.");
+        sayDialogue("Mochi ha vuelto a su rincón principal. 🐾");
+        return;
       }
+
+      // Crear contenedor flotante directamente
+      const container = document.createElement('div');
+      container.id = 'mochi-universal-pet-container';
+
+      if (!document.getElementById('mochi-uni-styles')) {
+        const s = document.createElement('style');
+        s.id = 'mochi-uni-styles';
+        s.textContent = `
+          #mochi-universal-pet-container {
+            position: fixed;
+            bottom: 40px;
+            right: 40px;
+            z-index: 999999;
+            user-select: none;
+            cursor: grab;
+            filter: drop-shadow(0 10px 25px rgba(0,0,0,0.5));
+            transition: transform 0.15s ease-out;
+          }
+          #mochi-universal-pet-container.grabbing {
+            cursor: grabbing;
+            transform: scale(1.1) rotate(4deg);
+          }
+          .uni-bubble {
+            position: absolute;
+            bottom: 140px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(18, 24, 38, 0.95);
+            border: 1px solid #8b5cf6;
+            color: #f3f4f6;
+            padding: 6px 14px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 700;
+            white-space: nowrap;
+            pointer-events: none;
+            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4);
+            animation: uniBounce 3s infinite ease-in-out;
+          }
+          .uni-bubble::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 50%;
+            transform: translateX(-50%) rotate(45deg);
+            width: 8px;
+            height: 8px;
+            background: rgba(18, 24, 38, 0.95);
+            border-right: 1px solid #8b5cf6;
+            border-bottom: 1px solid #8b5cf6;
+          }
+          @keyframes uniBounce {
+            0%, 100% { transform: translateX(-50%) translateY(0); }
+            50% { transform: translateX(-50%) translateY(-5px); }
+          }
+          .uni-close {
+            position: absolute;
+            top: -6px;
+            right: -6px;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #ef4444;
+            color: #ffffff;
+            border: 2px solid #ffffff;
+            font-size: 12px;
+            font-weight: 900;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+            transition: transform 0.15s;
+          }
+          .uni-close:hover { transform: scale(1.2); }
+          .uni-cat-svg {
+            width: 125px;
+            height: 125px;
+            display: block;
+            animation: floatCat 3.5s ease-in-out infinite;
+          }
+        `;
+        document.head.appendChild(s);
+      }
+
+      container.innerHTML = `
+        <div class="uni-bubble" id="uniBubble">¡Miau! Arrástrame por donde quieras 🐾</div>
+        <div class="uni-close" id="uniClose" title="Cerrar">✕</div>
+        <svg class="uni-cat-svg" viewBox="0 0 200 200">
+          <ellipse cx="100" cy="180" rx="65" ry="12" fill="rgba(0,0,0,0.3)" />
+          <path d="M 140 145 C 175 140, 185 105, 165 90 C 155 80, 145 95, 150 105 C 158 120, 148 135, 130 145 Z" fill="#ffd166" style="transform-origin:135px 145px; animation: tailWalk 2s ease-in-out infinite alternate;" />
+          <path d="M 65 170 C 50 130, 60 95, 100 95 C 140 95, 150 130, 135 170 C 130 176, 70 176, 65 170 Z" fill="#ffd166" />
+          <ellipse cx="100" cy="140" rx="22" ry="25" fill="#fff3b0" />
+          <ellipse cx="80" cy="170" rx="12" ry="8" fill="#ffd166" />
+          <ellipse cx="120" cy="170" rx="12" ry="8" fill="#ffd166" />
+          <circle cx="100" cy="85" r="42" fill="#ffd166" />
+          <polygon points="65,70 50,30 85,55" fill="#ffd166" />
+          <polygon points="68,66 57,38 82,55" fill="#f4978e" />
+          <polygon points="135,70 150,30 115,55" fill="#ffd166" />
+          <polygon points="132,66 143,38 118,55" fill="#f4978e" />
+          <ellipse cx="82" cy="85" rx="7" ry="9" fill="#1a1a1a" />
+          <circle cx="80" cy="82" r="2.5" fill="#ffffff" />
+          <ellipse cx="118" cy="85" rx="7" ry="9" fill="#1a1a1a" />
+          <circle cx="116" cy="82" r="2.5" fill="#ffffff" />
+          <polygon points="97,95 103,95 100,99" fill="#e07a5f" />
+          <path d="M 94 100 Q 100 105 100 100 Q 100 105 106 100" fill="none" stroke="#4a4e69" stroke-width="2.2" stroke-linecap="round" />
+          <circle cx="73" cy="95" r="6" fill="rgba(244, 151, 142, 0.6)" />
+          <circle cx="127" cy="95" r="6" fill="rgba(244, 151, 142, 0.6)" />
+          <line x1="60" y1="94" x2="40" y2="90" stroke="#8d99ae" stroke-width="1.8" />
+          <line x1="60" y1="98" x2="38" y2="101" stroke="#8d99ae" stroke-width="1.8" />
+          <line x1="140" y1="94" x2="160" y2="90" stroke="#8d99ae" stroke-width="1.8" />
+          <line x1="140" y1="98" x2="162" y2="101" stroke="#8d99ae" stroke-width="1.8" />
+        </svg>
+      `;
+      document.body.appendChild(container);
+
+      // Drag and drop con ratón
+      let isDrag = false;
+      let startX = 0, startY = 0;
+      let origL = 0, origT = 0;
+      let moved = false;
+
+      container.addEventListener('mousedown', (e) => {
+        if (e.target.id === 'uniClose') return;
+        isDrag = true;
+        moved = false;
+        container.classList.add('grabbing');
+        startX = e.clientX;
+        startY = e.clientY;
+        const r = container.getBoundingClientRect();
+        origL = r.left;
+        origT = r.top;
+        container.style.bottom = 'auto';
+        container.style.right = 'auto';
+        container.style.left = `${origL}px`;
+        container.style.top = `${origT}px`;
+      });
+
+      window.addEventListener('mousemove', (e) => {
+        if (!isDrag) return;
+        const dx = e.clientX - startX;
+        const dy = e.clientY - startY;
+        if (Math.abs(dx) > 3 || Math.abs(dy) > 3) moved = true;
+        container.style.left = `${Math.max(10, Math.min(window.innerWidth - 130, origL + dx))}px`;
+        container.style.top = `${Math.max(10, Math.min(window.innerHeight - 130, origT + dy))}px`;
+      });
+
+      window.addEventListener('mouseup', () => {
+        if (!isDrag) return;
+        isDrag = false;
+        container.classList.remove('grabbing');
+        if (!moved) {
+          playMeowSound();
+          spawnEffect('❤️');
+          const b = document.getElementById('uniBubble');
+          if (b) b.textContent = "¡Puuuurrr! Mimos flotantes ❤️";
+        }
+      });
+
+      // Doble clic: Alternar siesta
+      container.addEventListener('dblclick', () => {
+        playSleepyPurrSound();
+        spawnEffect('💤');
+        const b = document.getElementById('uniBubble');
+        if (b) b.textContent = "Zzz... Durmiendo en este rincón... zzz...";
+      });
+
+      // Cerrar
+      document.getElementById('uniClose').addEventListener('click', () => {
+        container.remove();
+        sayDialogue("Mochi ha regresado a su camita principal. 🐾");
+      });
+
+      sayDialogue("¡Mochi liberado por la pantalla! 🚀 Puedes arrastrarlo donde quieras con el ratón.");
     });
   }
 
