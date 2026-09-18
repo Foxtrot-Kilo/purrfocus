@@ -84,6 +84,21 @@
       <!-- Escenario del Gatito Animado -->
       <div class="pet-stage" id="petStage">
         
+        <!-- Overlay del Mini-Juego Caza del Láser -->
+        <div class="laser-game-overlay" id="laserGameOverlay">
+          <div class="laser-game-hud">
+            <span class="hud-item">🎯 <strong id="laserScore">0</strong> pts</span>
+            <span class="hud-item">⏱️ <strong id="laserTime">20</strong>s</span>
+            <span class="hud-item">🏆 <strong id="laserHighScore">0</strong></span>
+            <button type="button" class="btn-close-game" id="closeLaserGameBtn" title="Salir del juego">✕</button>
+          </div>
+          <!-- Puntero Láser Rojo Objetivo -->
+          <div class="laser-target" id="laserTarget" title="¡Atrapa el punto rojo!">
+            <span class="laser-dot"></span>
+            <span class="laser-ripple"></span>
+          </div>
+        </div>
+
         <!-- Efectos flotantes de caricias y comida -->
         <div class="effects-layer" id="effectsLayer"></div>
 
@@ -223,6 +238,16 @@
           <span>Alimentar</span>
         </button>
 
+        <button id="jumpBtn" class="action-btn action-jump" title="Hacer saltar a Mochi">
+          <span class="btn-emoji">🦘</span>
+          <span>Saltar</span>
+        </button>
+
+        <button id="crouchBtn" class="action-btn action-crouch" title="Agachar a Mochi en modo sigilo">
+          <span class="btn-emoji">🐾</span>
+          <span>Agacharse</span>
+        </button>
+
         <button id="accessoryBtn" class="action-btn action-style" title="Cambiar look o accesorio de Mochi">
           <span class="btn-emoji">🕶️</span>
           <span>Cambiar Look</span>
@@ -231,6 +256,18 @@
         <button id="meowBtn" class="action-btn action-talk" title="Escuchar consejo de Mochi">
           <span class="btn-emoji">💬</span>
           <span>Hablar</span>
+        </button>
+      </div>
+
+      <!-- Botón Especial Destacado: Mini-Juego Láser -->
+      <div class="game-launcher-wrap">
+        <button id="laserGameBtn" class="btn-laser-game" title="Iniciar mini-juego para despejar la mente">
+          <span class="game-icon">🎮</span>
+          <div class="game-btn-text">
+            <span class="game-title">Mini-Juego: Caza del Láser</span>
+            <span class="game-sub">¡Despeja la mente atrapando el punto rojo!</span>
+          </div>
+          <span class="game-badge">JUGAR</span>
         </button>
       </div>
     </section>

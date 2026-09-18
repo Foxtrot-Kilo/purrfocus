@@ -1,6 +1,6 @@
 /**
- * PURRFOCUS - LÓGICA DE INTERACCIÓN, POMODORO Y SÍNTESIS DE AUDIO
- * Versión 2.0: Animaciones mejoradas, seguimiento ocular, modo dormir y diálogos contextuales
+ * PURRFOCUS - LÓGICA DE INTERACCIÓN, POMODORO, SÍNTESIS DE AUDIO Y MINI-JUEGO
+ * Versión 3.0: Saltos, sentadillas, modo sigilo, mini-juego Caza del Láser y animaciones
  * Proyecto de Examen desarrollado con Gemini CLI
  */
 
@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
     theme: 'dark',
     happiness: 90,
     energy: 85,
-    accessoryIndex: 0, // 0: ninguno, 1: gafas, 2: auriculares, 3: sombrero
+    accessoryIndex: 0,
     accessories: ['none', 'glasses', 'headphones', 'hat'],
     
     // Estados del gato
@@ -21,22 +21,32 @@ document.addEventListener('DOMContentLoaded', () => {
     isFocused: false,
 
     // Temporizador
-    timerDuration: 25 * 60, // 25 min en segundos
+    timerDuration: 25 * 60,
     timeLeft: 25 * 60,
     timerInterval: null,
     isRunning: false,
-    currentMode: 'focus', // 'focus', 'short-break', 'long-break'
+    currentMode: 'focus',
 
     // Audio ambiental
     ambientPlaying: false
   };
 
-  // Frases de Mochi (Diálogos inteligentes según el contexto)
+  // Mini-Juego: Caza del Láser
+  const laserGame = {
+    isPlaying: false,
+    score: 0,
+    timeLeft: 20,
+    timerId: null,
+    moveTimerId: null,
+    highScore: parseInt(localStorage.getItem('purrfocus_laser_highscore') || '0', 10)
+  };
+
+  // Frases de Mochi
   const mochiQuotes = {
     welcome: [
-      "¡Miau! Hola, soy <strong>Mochi</strong>. Hoy vamos a romperla en el examen. ¡Acaríciame para empezar!",
+      "¡Miau! Hola, soy <strong>Mochi</strong>. Hoy vamos a romperla en el examen. ¡Hazme saltar o acaríciame!",
       "¿Sabías que los gatos ronronean a 20-140 Hz? ¡Eso estimula la concentración y el aprendizaje!",
-      "¡Listo para una sesión de código! Define tus metas en la lista de abajo."
+      "¡Listo para una sesión de código! Define tus metas en la lista de abajo o jugamos un ratito."
     ],
     focusMode: [
       "¡Modo Concentración activado! 🎯 25 minutos de código puro. Cero distracciones. ¡Vamos!",
@@ -129,6 +139,8 @@ document.addEventListener('DOMContentLoaded', () => {
   // Botones de Mochi
   const petBtn = document.getElementById('petBtn');
   const feedBtn = document.getElementById('feedBtn');
+  const jumpBtn = document.getElementById('jumpBtn');
+  const crouchBtn = document.getElementById('crouchBtn');
   const accessoryBtn = document.getElementById('accessoryBtn');
   const meowBtn = document.getElementById('meowBtn');
 
@@ -136,6 +148,15 @@ document.addEventListener('DOMContentLoaded', () => {
   const accGlasses = document.getElementById('accGlasses');
   const accHeadphones = document.getElementById('accHeadphones');
   const accHat = document.getElementById('accHat');
+
+  // Mini-Juego Láser
+  const laserGameBtn = document.getElementById('laserGameBtn');
+  const laserGameOverlay = document.getElementById('laserGameOverlay');
+  const closeLaserGameBtn = document.getElementById('closeLaserGameBtn');
+  const laserScore = document.getElementById('laserScore');
+  const laserTime = document.getElementById('laserTime');
+  const laserHighScore = document.getElementById('laserHighScore');
+  const laserTarget = document.getElementById('laserTarget');
 
   // Temporizador
   const timeDisplay = document.getElementById('timeDisplay');
@@ -161,6 +182,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const todoInput = document.getElementById('todoInput');
   const todoList = document.getElementById('todoList');
   const taskCounter = document.getElementById('taskCounter');
+
+  // Inicializar HighScore
+  if (laserHighScore) laserHighScore.textContent = laserGame.highScore;
 
   // ==========================================
   // 3. SINTETIZADOR DE AUDIO (WEB AUDIO API)
@@ -209,7 +233,85 @@ document.addEventListener('DOMContentLoaded', () => {
     } catch (e) {}
   }
 
-  // Sonido de Ronroneo Dormilón Suave
+  // Sonido de Salto (Boing elástico)
+  function playJumpSound() {
+    if (!state.soundEnabled) return;
+    initAudioContext();
+    if (!audioCtx) return;
+
+    try {
+      const now = audioCtx.currentTime;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(280, now);
+      osc.frequency.exponentialRampToValueAtTime(740, now + 0.22);
+
+      gain.gain.setValueAtTime(0.2, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.28);
+
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+
+      osc.start(now);
+      osc.stop(now + 0.29);
+    } catch (e) {}
+  }
+
+  // Sonido de Sentadilla / Agacharse
+  function playCrouchSound() {
+    if (!state.soundEnabled) return;
+    initAudioContext();
+    if (!audioCtx) return;
+
+    try {
+      const now = audioCtx.currentTime;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(360, now);
+      osc.frequency.exponentialRampToValueAtTime(180, now + 0.18);
+
+      gain.gain.setValueAtTime(0.15, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
+
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+
+      osc.start(now);
+      osc.stop(now + 0.21);
+    } catch (e) {}
+  }
+
+  // Sonido de Acierto en el Láser (Arcade 8-bit blip)
+  function playLaserCatchSound() {
+    if (!state.soundEnabled) return;
+    initAudioContext();
+    if (!audioCtx) return;
+
+    try {
+      const now = audioCtx.currentTime;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+
+      osc.type = 'square';
+      osc.frequency.setValueAtTime(980, now);
+      osc.frequency.setValueAtTime(1400, now + 0.06);
+
+      gain.gain.setValueAtTime(0.14, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.14);
+
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+
+      osc.start(now);
+      osc.stop(now + 0.15);
+    } catch (e) {}
+  }
+
+  // Sonido de Ronroneo Dormilón
   function playSleepyPurrSound() {
     if (!state.soundEnabled) return;
     initAudioContext();
@@ -237,14 +339,14 @@ document.addEventListener('DOMContentLoaded', () => {
     } catch (e) {}
   }
 
-  // Sonido de Campanada / Victoria (Timer o Tarea)
+  // Sonido de Campanada / Victoria
   function playChimeSound() {
     if (!state.soundEnabled) return;
     initAudioContext();
     if (!audioCtx) return;
 
     try {
-      const notes = [523.25, 659.25, 783.99, 1046.50]; // Acorde C Mayor
+      const notes = [523.25, 659.25, 783.99, 1046.50];
       notes.forEach((freq, idx) => {
         const now = audioCtx.currentTime + (idx * 0.09);
         const osc = audioCtx.createOscillator();
@@ -265,7 +367,7 @@ document.addEventListener('DOMContentLoaded', () => {
     } catch (e) {}
   }
 
-  // Generador de Sonido Ambiental (Lluvia Suave & Ronroneo)
+  // Generador de Sonido Ambiental
   function toggleAmbientSound() {
     initAudioContext();
     if (!audioCtx) return;
@@ -321,22 +423,20 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ==========================================
-  // 4. CONTROLADOR DE ESTADO DEL GATITO (DORMIR / DESPERTAR)
+  // 4. CONTROLADOR DE ESTADO DEL GATITO
   // ==========================================
   function setCatSleep(sleeping, mode = 'short-break') {
     state.isSleeping = sleeping;
 
     if (sleeping) {
       catCharacter.classList.add('sleeping');
-      catCharacter.classList.remove('focused');
+      catCharacter.classList.remove('focused', 'jumping', 'crouching');
       accSleepCap.classList.add('active');
 
-      // Ocultar temporalmente otros accesorios mientras duerme
       accGlasses.classList.remove('active');
       accHeadphones.classList.remove('active');
       accHat.classList.remove('active');
 
-      // Resetear posición de ojos
       if (eyeGroupLeft) eyeGroupLeft.style.transform = 'translate(0px, 0px)';
       if (eyeGroupRight) eyeGroupRight.style.transform = 'translate(0px, 0px)';
 
@@ -354,7 +454,6 @@ document.addEventListener('DOMContentLoaded', () => {
       catCharacter.classList.remove('sleeping');
       accSleepCap.classList.remove('active');
 
-      // Restaurar accesorio elegido por el usuario
       restoreAccessory();
 
       badgeIcon.textContent = "🐱";
@@ -363,7 +462,6 @@ document.addEventListener('DOMContentLoaded', () => {
       const q = mochiQuotes.focusMode[Math.floor(Math.random() * mochiQuotes.focusMode.length)];
       sayDialogue(q);
 
-      // Pequeña animación de saludo con la patita al despertar
       catCharacter.classList.add('waving');
       setTimeout(() => catCharacter.classList.remove('waving'), 1500);
     }
@@ -382,14 +480,14 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ==========================================
-  // 5. SEGUIMIENTO OCULAR INTERACTIVO (CURSOR)
+  // 5. SEGUIMIENTO OCULAR CON CURSOR
   // ==========================================
   window.addEventListener('mousemove', (e) => {
-    if (state.isSleeping) return; // Si duerme, no sigue el cursor
+    if (state.isSleeping) return;
 
     const rect = catCharacter.getBoundingClientRect();
     const catCenterX = rect.left + rect.width / 2;
-    const catCenterY = rect.top + rect.height * 0.4; // Altura de los ojos
+    const catCenterY = rect.top + rect.height * 0.4;
 
     const deltaX = e.clientX - catCenterX;
     const deltaY = e.clientY - catCenterY;
@@ -397,7 +495,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (distance === 0) return;
 
-    // Limitar desplazamiento máximo a 4 píxeles
     const maxOffset = 4.0;
     const offsetX = Math.max(-maxOffset, Math.min(maxOffset, (deltaX / 120) * maxOffset));
     const offsetY = Math.max(-maxOffset, Math.min(maxOffset, (deltaY / 120) * maxOffset));
@@ -443,8 +540,61 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ==========================================
-  // 7. INTERACCIONES CON MOCHI
+  // 7. INTERACCIONES: SALTAR, AGACHARSE, MIMOS
   // ==========================================
+  function jumpCat() {
+    if (state.isSleeping) {
+      sayDialogue("Zzz... Mochi está soñando que vuela por los tejados... 💤");
+      playSleepyPurrSound();
+      return;
+    }
+
+    catCharacter.classList.remove('jumping', 'crouching');
+    void catCharacter.offsetWidth;
+    catCharacter.classList.add('jumping');
+    playJumpSound();
+    spawnEffect('⭐');
+    setTimeout(() => spawnEffect('💨'), 100);
+
+    state.happiness = Math.min(100, state.happiness + 4);
+    updateStats();
+
+    const jumpQuotes = [
+      "¡BOING! 🦘 ¡Qué salto felino acrobático!",
+      "¡Arriba las patitas! 🐾 Esquivando todos los errores de sintaxis.",
+      "¡Hop! Un salto de 10/10 según los jueces felinos."
+    ];
+    sayDialogue(jumpQuotes[Math.floor(Math.random() * jumpQuotes.length)]);
+
+    setTimeout(() => catCharacter.classList.remove('jumping'), 650);
+  }
+
+  function crouchCat() {
+    if (state.isSleeping) {
+      sayDialogue("Zzz... Ya está bien acurrucado durmiendo... 😴");
+      playSleepyPurrSound();
+      return;
+    }
+
+    catCharacter.classList.remove('jumping', 'crouching');
+    void catCharacter.offsetWidth;
+    catCharacter.classList.add('crouching');
+    playCrouchSound();
+    spawnEffect('🐾');
+
+    state.happiness = Math.min(100, state.happiness + 3);
+    updateStats();
+
+    const crouchQuotes = [
+      "*Modo sigilo activado*... 🐾 Mochi acecha a los bugs en el código.",
+      "*Agazapado en las sombras*... Preparando el zarpazo.",
+      "¡Shhh! Mochi está concentrado observando la pantalla en cuclillas."
+    ];
+    sayDialogue(crouchQuotes[Math.floor(Math.random() * crouchQuotes.length)]);
+
+    setTimeout(() => catCharacter.classList.remove('crouching'), 650);
+  }
+
   function petCat() {
     if (state.isSleeping) {
       state.happiness = Math.min(100, state.happiness + 5);
@@ -524,7 +674,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     playMeowSound();
-    // Saludar con la patita al hablar
     catCharacter.classList.add('waving');
     setTimeout(() => catCharacter.classList.remove('waving'), 1200);
 
@@ -532,15 +681,148 @@ document.addEventListener('DOMContentLoaded', () => {
     sayDialogue(quote);
   }
 
-  // Listeners de la mascota
-  catCharacter.addEventListener('click', petCat);
+  // Al hacer clic directo sobre Mochi: salta, se agacha o ronronea
+  catCharacter.addEventListener('click', (e) => {
+    if (state.isSleeping) {
+      petCat();
+      return;
+    }
+    const rand = Math.random();
+    if (rand < 0.4) {
+      jumpCat();
+    } else if (rand < 0.7) {
+      crouchCat();
+    } else {
+      petCat();
+    }
+  });
+
+  // Listeners de los botones
   petBtn.addEventListener('click', petCat);
   feedBtn.addEventListener('click', feedCat);
+  jumpBtn.addEventListener('click', jumpCat);
+  crouchBtn.addEventListener('click', crouchCat);
   accessoryBtn.addEventListener('click', cycleAccessory);
   meowBtn.addEventListener('click', talkCat);
 
   // ==========================================
-  // 8. TEMPORIZADOR POMODORO MEJORADO
+  // 8. MINI-JUEGO: CAZA DEL LÁSER ROJO 🔴
+  // ==========================================
+  function moveLaserTarget() {
+    if (!laserGame.isPlaying) return;
+
+    const rect = petStage.getBoundingClientRect();
+    // Mantener dentro del escenario del gato
+    const paddingX = 40;
+    const paddingY = 40;
+    const minX = paddingX;
+    const maxX = rect.width - paddingX;
+    const minY = paddingY;
+    const maxY = rect.height - paddingY;
+
+    const targetX = Math.random() * (maxX - minX) + minX;
+    const targetY = Math.random() * (maxY - minY) + minY;
+
+    laserTarget.style.left = `${targetX}px`;
+    laserTarget.style.top = `${targetY}px`;
+
+    // Programar próximo movimiento
+    clearTimeout(laserGame.moveTimerId);
+    laserGame.moveTimerId = setTimeout(moveLaserTarget, 850);
+  }
+
+  function startLaserGame() {
+    if (state.isSleeping) {
+      setCatSleep(false);
+    }
+
+    laserGame.isPlaying = true;
+    laserGame.score = 0;
+    laserGame.timeLeft = 20;
+
+    laserScore.textContent = laserGame.score;
+    laserTime.textContent = laserGame.timeLeft;
+    laserGameOverlay.classList.add('active');
+
+    sayDialogue("¡UN LÁSER ROJO! 🔴 ¡Atrápalo rápido haciendo clic antes de que escape!");
+    playMeowSound();
+    moveLaserTarget();
+
+    // Cuenta regresiva de 20 segundos
+    clearInterval(laserGame.timerId);
+    laserGame.timerId = setInterval(() => {
+      laserGame.timeLeft--;
+      laserTime.textContent = laserGame.timeLeft;
+
+      if (laserGame.timeLeft <= 0) {
+        endLaserGame();
+      }
+    }, 1000);
+  }
+
+  function catchLaser(e) {
+    if (!laserGame.isPlaying) return;
+    e.stopPropagation();
+
+    laserGame.score += 10;
+    laserScore.textContent = laserGame.score;
+    playLaserCatchSound();
+
+    // Mochi salta hacia la presa (pounce)
+    catCharacter.classList.remove('pouncing', 'jumping', 'crouching');
+    void catCharacter.offsetWidth;
+    catCharacter.classList.add('pouncing');
+    setTimeout(() => catCharacter.classList.remove('pouncing'), 380);
+
+    spawnEffect('💥');
+    setTimeout(() => spawnEffect('⭐'), 80);
+
+    // Mover inmediatamente a otra posición
+    moveLaserTarget();
+  }
+
+  function endLaserGame() {
+    laserGame.isPlaying = false;
+    clearInterval(laserGame.timerId);
+    clearTimeout(laserGame.moveTimerId);
+
+    // Actualizar High Score
+    if (laserGame.score > laserGame.highScore) {
+      laserGame.highScore = laserGame.score;
+      localStorage.setItem('purrfocus_laser_highscore', laserGame.highScore);
+      laserHighScore.textContent = laserGame.highScore;
+    }
+
+    playChimeSound();
+    state.happiness = 100;
+    state.energy = Math.min(100, state.energy + 20);
+    updateStats();
+
+    for (let i = 0; i < 6; i++) {
+      setTimeout(() => spawnEffect('🎉'), i * 120);
+    }
+
+    sayDialogue(`¡FIN DEL JUEGO! 🏆 Lograste <strong>${laserGame.score} puntos</strong>. ¡Mochi está eufórico y listo para seguir estudiando!`);
+
+    setTimeout(() => {
+      laserGameOverlay.classList.remove('active');
+    }, 2400);
+  }
+
+  function closeLaserGame() {
+    laserGame.isPlaying = false;
+    clearInterval(laserGame.timerId);
+    clearTimeout(laserGame.moveTimerId);
+    laserGameOverlay.classList.remove('active');
+    sayDialogue("Juego terminado. ¡De vuelta al modo de trabajo!");
+  }
+
+  laserGameBtn.addEventListener('click', startLaserGame);
+  laserTarget.addEventListener('click', catchLaser);
+  closeLaserGameBtn.addEventListener('click', closeLaserGame);
+
+  // ==========================================
+  // 9. TEMPORIZADOR POMODORO MEJORADO
   // ==========================================
   const CIRCLE_CIRCUMFERENCE = 2 * Math.PI * 90;
 
@@ -559,7 +841,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function startTimer() {
     if (state.isRunning) {
-      // Pausar
       clearInterval(state.timerInterval);
       state.isRunning = false;
       startBtnText.textContent = "Reanudar";
@@ -572,7 +853,6 @@ document.addEventListener('DOMContentLoaded', () => {
         sayDialogue("Temporizador pausado. ¡Aquí estaré esperándote!");
       }
     } else {
-      // Iniciar
       state.isRunning = true;
       startBtnText.textContent = "Pausar";
       startTimerBtn.classList.add('running');
@@ -591,7 +871,6 @@ document.addEventListener('DOMContentLoaded', () => {
           state.timeLeft--;
           updateTimerDisplay();
         } else {
-          // Finalizado
           clearInterval(state.timerInterval);
           state.isRunning = false;
           startBtnText.textContent = "Comenzar Sesión";
@@ -601,11 +880,9 @@ document.addEventListener('DOMContentLoaded', () => {
           playChimeSound();
 
           if (state.isSleeping) {
-            // El descanso terminó -> despertar al gato
             setCatSleep(false);
             sayDialogue("¡Fin del descanso! ⏰ Mochi se despierta recargado. ¡A concentrarse con todo!");
           } else {
-            // La sesión de enfoque terminó -> felicitar y sugerir descanso
             const completeQuote = mochiQuotes.focusComplete[Math.floor(Math.random() * mochiQuotes.focusComplete.length)];
             sayDialogue(completeQuote);
             state.happiness = Math.min(100, state.happiness + 15);
@@ -643,7 +920,6 @@ document.addEventListener('DOMContentLoaded', () => {
     phaseTag.textContent = labelText;
     updateTimerDisplay();
 
-    // Actualizar estado de dormir / despertar del gato según el modo
     if (modeName === 'short-break' || modeName === 'long-break') {
       setCatSleep(true, modeName);
     } else {
@@ -651,7 +927,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // Listeners del Timer
   startTimerBtn.addEventListener('click', startTimer);
   resetTimerBtn.addEventListener('click', resetTimer);
 
@@ -673,7 +948,7 @@ document.addEventListener('DOMContentLoaded', () => {
   ambientSoundBtn.addEventListener('click', toggleAmbientSound);
 
   // ==========================================
-  // 9. LISTA DE TAREAS (MISIONES DE ENFOQUE)
+  // 10. LISTA DE TAREAS (MISIONES DE ENFOQUE)
   // ==========================================
   function updateTaskCounter() {
     const total = todoList.querySelectorAll('.todo-item').length;
@@ -741,7 +1016,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ==========================================
-  // 10. TEMA VISUAL Y CONFIGURACIÓN
+  // 11. TEMA VISUAL Y CONFIGURACIÓN
   // ==========================================
   soundToggleBtn.addEventListener('click', () => {
     state.soundEnabled = !state.soundEnabled;

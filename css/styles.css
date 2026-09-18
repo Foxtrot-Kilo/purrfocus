@@ -773,6 +773,40 @@ body {
   box-shadow: 0 0 10px rgba(234, 179, 8, 0.3);
 }
 
+/* Animaciones de Salto y Sentadilla de Mochi */
+.cat-character.jumping {
+  animation: catJump 0.65s cubic-bezier(0.25, 1, 0.5, 1) !important;
+}
+
+@keyframes catJump {
+  0% { transform: translateY(0) scale(1, 1); }
+  15% { transform: translateY(10px) scale(1.18, 0.82); } /* Sentadilla previa */
+  45% { transform: translateY(-52px) scale(0.92, 1.22); } /* Salto alto */
+  70% { transform: translateY(3px) scale(1.14, 0.88); } /* Aterrizaje y amortiguación */
+  85% { transform: translateY(-8px) scale(0.98, 1.05); }
+  100% { transform: translateY(0) scale(1, 1); }
+}
+
+.cat-character.crouching {
+  animation: catCrouch 0.65s ease-in-out !important;
+}
+
+@keyframes catCrouch {
+  0% { transform: translateY(0) scale(1, 1); }
+  35%, 70% { transform: translateY(16px) scale(1.24, 0.76); } /* Agachado felino */
+  100% { transform: translateY(0) scale(1, 1); }
+}
+
+.cat-character.pouncing {
+  animation: catPounce 0.38s ease-out !important;
+}
+
+@keyframes catPounce {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.22) translateY(-14px) rotate(-6deg); }
+  100% { transform: scale(1); }
+}
+
 /* Botones de Acción de la Mascota */
 .pet-controls {
   display: grid;
@@ -810,6 +844,171 @@ body {
 
 .btn-emoji {
   font-size: 1.1rem;
+}
+
+/* Lanzador del Mini-Juego */
+.game-launcher-wrap {
+  margin-top: 14px;
+}
+
+.btn-laser-game {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(139, 92, 246, 0.2));
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  border-radius: var(--radius-md);
+  padding: 12px 18px;
+  color: var(--text-main);
+  font-family: inherit;
+  cursor: pointer;
+  transition: var(--transition-smooth);
+}
+
+.btn-laser-game:hover {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.28), rgba(139, 92, 246, 0.32));
+  border-color: #ef4444;
+  box-shadow: 0 0 20px rgba(239, 68, 68, 0.35);
+  transform: translateY(-2px);
+}
+
+.game-icon {
+  font-size: 1.5rem;
+}
+
+.game-btn-text {
+  flex: 1;
+  text-align: left;
+}
+
+.game-title {
+  display: block;
+  font-weight: 800;
+  font-size: 0.92rem;
+  color: #f87171;
+}
+
+.game-sub {
+  display: block;
+  font-size: 0.74rem;
+  color: var(--text-muted);
+}
+
+.game-badge {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 900;
+  background: #ef4444;
+  color: #ffffff;
+  padding: 4px 10px;
+  border-radius: 20px;
+  letter-spacing: 0.5px;
+  box-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
+}
+
+/* Mini-Juego: Caza del Láser Overlay */
+.laser-game-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: var(--radius-lg);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+  z-index: 30;
+}
+
+.laser-game-overlay.active {
+  pointer-events: auto;
+  opacity: 1;
+}
+
+.laser-game-hud {
+  position: absolute;
+  top: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(13, 17, 23, 0.92);
+  border: 1px solid var(--accent-red);
+  padding: 6px 16px;
+  border-radius: 50px;
+  box-shadow: 0 0 15px rgba(239, 68, 68, 0.35);
+  backdrop-filter: blur(8px);
+  z-index: 35;
+}
+
+.hud-item {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.hud-item strong {
+  color: var(--accent-yellow);
+}
+
+.btn-close-game {
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  color: var(--text-muted);
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 900;
+  cursor: pointer;
+  transition: var(--transition-smooth);
+}
+
+.btn-close-game:hover {
+  background: var(--accent-red);
+  color: #ffffff;
+}
+
+/* Objetivo del Láser Rojo */
+.laser-target {
+  position: absolute;
+  width: 34px;
+  height: 34px;
+  transform: translate(-50%, -50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: crosshair;
+  z-index: 32;
+  transition: top 0.35s cubic-bezier(0.2, 0.8, 0.2, 1), left 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.laser-dot {
+  width: 14px;
+  height: 14px;
+  background: #ff2a2a;
+  border-radius: 50%;
+  box-shadow: 0 0 12px #ff0055, 0 0 24px #ff0055;
+}
+
+.laser-ripple {
+  position: absolute;
+  width: 30px;
+  height: 30px;
+  border: 2px solid rgba(255, 42, 42, 0.6);
+  border-radius: 50%;
+  animation: laserPulse 1s infinite ease-out;
+}
+
+@keyframes laserPulse {
+  0% { transform: scale(0.4); opacity: 1; }
+  100% { transform: scale(1.6); opacity: 0; }
 }
 
 /* --- 8. Columna de Productividad --- */
