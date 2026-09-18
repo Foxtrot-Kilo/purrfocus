@@ -1,0 +1,1129 @@
+/* ==========================================================================
+   PURRFOCUS - ESTILOS CSS3 MODERNOS Y RESPONSIVOS
+   Desarrollado para examen con Gemini CLI
+   ========================================================================== */
+
+/* --- 1. Variables y Temas (Dark por defecto & Cozy Light) --- */
+:root {
+  /* Tema Oscuro (Cyber-Cozy) */
+  --bg-main: #0d1117;
+  --bg-card: rgba(22, 27, 34, 0.85);
+  --bg-card-hover: rgba(30, 38, 48, 0.95);
+  --border-color: rgba(255, 255, 255, 0.1);
+  --border-highlight: rgba(139, 92, 246, 0.4);
+  
+  --text-main: #f0f6fc;
+  --text-muted: #8b949e;
+  --text-accent: #c084fc;
+
+  --accent-purple: #8b5cf6;
+  --accent-purple-glow: rgba(139, 92, 246, 0.35);
+  --accent-pink: #ec4899;
+  --accent-pink-glow: rgba(236, 72, 153, 0.35);
+  --accent-yellow: #eab308;
+  --accent-cyan: #06b6d4;
+  --accent-green: #10b981;
+  --accent-red: #ef4444;
+
+  --cat-body-color: #ffd166;
+  --cat-chest-color: #fff3b0;
+  --cat-ear-inner: #f4978e;
+  --cat-blush-color: rgba(244, 151, 142, 0.6);
+  --cat-shadow-color: rgba(0, 0, 0, 0.35);
+
+  --font-sans: 'Nunito', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: 'Space Grotesk', monospace;
+  --radius-lg: 20px;
+  --radius-md: 14px;
+  --radius-sm: 8px;
+  --shadow-card: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+  --transition-smooth: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+[data-theme="light"] {
+  /* Tema Claro (Cozy Pastel) */
+  --bg-main: #fdfbf7;
+  --bg-card: rgba(255, 255, 255, 0.9);
+  --bg-card-hover: #ffffff;
+  --border-color: rgba(0, 0, 0, 0.08);
+  --border-highlight: rgba(139, 92, 246, 0.3);
+
+  --text-main: #27272a;
+  --text-muted: #71717a;
+  --text-accent: #7c3aed;
+
+  --cat-body-color: #fca311;
+  --cat-chest-color: #ffecd1;
+  --cat-shadow-color: rgba(0, 0, 0, 0.12);
+  --shadow-card: 0 10px 30px -10px rgba(100, 116, 139, 0.15);
+}
+
+/* --- 2. Reset y Configuración Base --- */
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--bg-main);
+  color: var(--text-main);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow-x: hidden;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  line-height: 1.5;
+}
+
+/* --- 3. Fondos Decorativos Glow --- */
+.bg-decorations {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.glow-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(100px);
+  opacity: 0.22;
+}
+
+.orb-1 {
+  width: 450px;
+  height: 450px;
+  background: var(--accent-purple);
+  top: -100px;
+  left: -100px;
+}
+
+.orb-2 {
+  width: 400px;
+  height: 400px;
+  background: var(--accent-pink);
+  bottom: -50px;
+  right: -100px;
+}
+
+/* --- 4. Barra de Navegación (Header) --- */
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 32px;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  background-color: rgba(13, 17, 23, 0.75);
+  border-bottom: 1px solid var(--border-color);
+  transition: var(--transition-smooth);
+}
+
+[data-theme="light"] .navbar {
+  background-color: rgba(253, 251, 247, 0.85);
+}
+
+.nav-brand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.brand-badge {
+  width: 44px;
+  height: 44px;
+  background: linear-gradient(135deg, var(--accent-purple), var(--accent-pink));
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  box-shadow: 0 4px 15px var(--accent-purple-glow);
+}
+
+.brand-title {
+  font-size: 1.35rem;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  background: linear-gradient(120deg, var(--text-main), var(--text-accent));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.brand-subtitle {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.nav-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 6px 14px;
+  border-radius: 50px;
+  border: 1px solid var(--border-color);
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  background-color: var(--accent-green);
+  border-radius: 50%;
+  box-shadow: 0 0 10px var(--accent-green);
+  animation: pulseDot 2s infinite ease-in-out;
+}
+
+@keyframes pulseDot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(0.85); }
+}
+
+.nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.btn-icon {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-color);
+  color: var(--text-main);
+  padding: 8px 14px;
+  border-radius: 50px;
+  font-family: inherit;
+  font-size: 0.84rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: var(--transition-smooth);
+}
+
+.btn-icon:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: var(--accent-purple);
+  transform: translateY(-2px);
+}
+
+.btn-github {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #24292e;
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 8px 16px;
+  border-radius: 50px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: var(--transition-smooth);
+}
+
+.btn-github:hover {
+  background: #32383f;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+/* --- 5. Dashboard Grid (Estructura Principal) --- */
+.dashboard-grid {
+  position: relative;
+  z-index: 1;
+  max-width: 1200px;
+  margin: 28px auto;
+  padding: 0 24px;
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1.15fr 1.35fr;
+  gap: 28px;
+  align-items: start;
+  flex: 1;
+}
+
+/* --- 6. Tarjetas Genéricas (Cards) --- */
+.card {
+  background: var(--bg-card);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  box-shadow: var(--shadow-card);
+  transition: var(--transition-smooth);
+}
+
+.card:hover {
+  border-color: var(--border-highlight);
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.card-title {
+  font-weight: 800;
+  font-size: 1.05rem;
+  letter-spacing: -0.3px;
+}
+
+.card-tag {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--accent-purple);
+  background: rgba(139, 92, 246, 0.12);
+  padding: 4px 10px;
+  border-radius: 20px;
+}
+
+/* Controles de Ventana Estilo Retro */
+.retro-window-controls {
+  display: flex;
+  gap: 7px;
+}
+
+.win-btn {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.win-red { background: #ff5f56; }
+.win-yellow { background: #ffbd2e; }
+.win-green { background: #27c93f; }
+
+/* --- 7. El Rincón de Mochi (Pet Section) --- */
+.pet-card {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Globo de diálogo estilo BonziBuddy */
+.dialogue-bubble {
+  position: relative;
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(236, 72, 153, 0.15));
+  border: 1px solid var(--border-highlight);
+  border-radius: var(--radius-md);
+  padding: 14px 18px;
+  margin-bottom: 18px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+  animation: bubbleBounce 4s ease-in-out infinite;
+}
+
+@keyframes bubbleBounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
+
+.dialogue-bubble p {
+  font-size: 0.92rem;
+  color: var(--text-main);
+  line-height: 1.45;
+}
+
+.dialogue-tail {
+  position: absolute;
+  bottom: -8px;
+  left: 50px;
+  width: 14px;
+  height: 14px;
+  background: rgba(139, 92, 246, 0.2);
+  border-right: 1px solid var(--border-highlight);
+  border-bottom: 1px solid var(--border-highlight);
+  transform: rotate(45deg);
+}
+
+/* Escenario del Gatito */
+.pet-stage {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 24px 0 10px;
+  min-height: 220px;
+}
+
+.cat-character {
+  position: relative;
+  cursor: pointer;
+  user-select: none;
+  transition: transform 0.15s ease-out;
+  animation: floatCat 3.5s ease-in-out infinite;
+}
+
+.cat-character:hover {
+  transform: scale(1.04);
+}
+
+.cat-character:active {
+  transform: scale(0.96);
+}
+
+@keyframes floatCat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+/* SVG del Gatito */
+.cat-svg {
+  display: block;
+}
+
+.cat-shadow {
+  fill: var(--cat-shadow-color);
+  transition: fill 0.3s ease;
+}
+
+.cat-tail {
+  fill: var(--cat-body-color);
+  transform-origin: 135px 145px;
+  animation: tailWag 3.2s ease-in-out infinite;
+}
+
+@keyframes tailWag {
+  0%, 100% { transform: rotate(0deg); }
+  50% { transform: rotate(14deg); }
+}
+
+.cat-body, .cat-head {
+  fill: var(--cat-body-color);
+  transition: fill 0.3s ease;
+}
+
+.cat-chest {
+  fill: var(--cat-chest-color);
+  transition: fill 0.3s ease;
+}
+
+.cat-paw {
+  fill: var(--cat-body-color);
+  stroke: rgba(0, 0, 0, 0.08);
+  stroke-width: 1;
+}
+
+.cat-ear {
+  fill: var(--cat-body-color);
+  transition: fill 0.3s ease;
+}
+
+.ear-left {
+  transform-origin: 65px 70px;
+  animation: earTwitchLeft 6s ease-in-out infinite;
+}
+
+.ear-right {
+  transform-origin: 135px 70px;
+  animation: earTwitchRight 6s ease-in-out infinite;
+}
+
+@keyframes earTwitchLeft {
+  0%, 92%, 100% { transform: rotate(0deg); }
+  94% { transform: rotate(-8deg); }
+  96% { transform: rotate(0deg); }
+}
+
+@keyframes earTwitchRight {
+  0%, 94%, 100% { transform: rotate(0deg); }
+  96% { transform: rotate(8deg); }
+  98% { transform: rotate(0deg); }
+}
+
+.cat-ear-inner {
+  fill: var(--cat-ear-inner);
+}
+
+/* Ojos del Gatito y Pestañeo */
+.cat-eye {
+  fill: #1a1a1a;
+  transform-origin: center;
+  animation: blinkEyes 4.5s infinite;
+}
+
+.eye-shine {
+  fill: #ffffff;
+}
+
+@keyframes blinkEyes {
+  0%, 94%, 98%, 100% { transform: scaleY(1); }
+  96% { transform: scaleY(0.1); }
+}
+
+.cat-nose {
+  fill: #e07a5f;
+}
+
+.cat-mouth {
+  fill: none;
+  stroke: #4a4e69;
+  stroke-width: 2.2;
+  stroke-linecap: round;
+}
+
+.cat-blush {
+  fill: var(--cat-blush-color);
+}
+
+.cat-whisker {
+  stroke: #8d99ae;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  opacity: 0.85;
+}
+
+/* Accesorios de Mochi */
+.accessory {
+  display: none;
+  position: absolute;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.accessory-glasses {
+  top: 60px;
+  left: 65px;
+  font-size: 40px;
+}
+
+.accessory-headphones {
+  top: 25px;
+  left: 65px;
+  font-size: 46px;
+}
+
+.accessory-hat {
+  top: 15px;
+  left: 65px;
+  font-size: 44px;
+}
+
+.accessory.active {
+  display: block;
+  animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes popIn {
+  0% { transform: scale(0.5); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* Capa de Efectos Flotantes (Corazones y Pescaditos) */
+.effects-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.floating-effect {
+  position: absolute;
+  font-size: 24px;
+  user-select: none;
+  animation: floatUpFade 1.4s ease-out forwards;
+}
+
+@keyframes floatUpFade {
+  0% {
+    opacity: 1;
+    transform: translateY(0) scale(0.8) rotate(0deg);
+  }
+  50% {
+    opacity: 0.9;
+    transform: translateY(-40px) scale(1.2) rotate(12deg);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-80px) scale(1.4) rotate(-12deg);
+  }
+}
+
+/* Barras de Estadísticas (Felicidad y Energía) */
+.pet-stats-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 16px 0;
+  background: rgba(0, 0, 0, 0.15);
+  padding: 14px 16px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.stat-info {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.progress-bar-wrap {
+  width: 100%;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  border-radius: 20px;
+  transition: width 0.4s ease;
+}
+
+.progress-pink {
+  background: linear-gradient(90deg, #f43f5e, #ec4899);
+  box-shadow: 0 0 10px var(--accent-pink-glow);
+}
+
+.progress-yellow {
+  background: linear-gradient(90deg, #f59e0b, #eab308);
+  box-shadow: 0 0 10px rgba(234, 179, 8, 0.3);
+}
+
+/* Botones de Acción de la Mascota */
+.pet-controls {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+.action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-main);
+  font-family: inherit;
+  font-size: 0.86rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: var(--transition-smooth);
+}
+
+.action-btn:hover {
+  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.1);
+  border-color: var(--accent-purple);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.action-btn:active {
+  transform: translateY(0);
+}
+
+.btn-emoji {
+  font-size: 1.1rem;
+}
+
+/* --- 8. Columna de Productividad --- */
+.productivity-column {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* --- 9. Temporizador Pomodoro --- */
+.timer-mode-chips {
+  display: flex;
+  gap: 6px;
+  background: rgba(0, 0, 0, 0.2);
+  padding: 4px;
+  border-radius: 50px;
+  border: 1px solid var(--border-color);
+}
+
+.mode-chip {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-family: inherit;
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 6px 12px;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: var(--transition-smooth);
+}
+
+.mode-chip:hover {
+  color: var(--text-main);
+}
+
+.mode-chip.active {
+  background: var(--accent-purple);
+  color: #ffffff;
+  box-shadow: 0 2px 10px var(--accent-purple-glow);
+}
+
+.timer-display-wrap {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 16px 0;
+}
+
+.timer-circle {
+  position: relative;
+  width: 210px;
+  height: 210px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.timer-svg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.timer-track {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.06);
+  stroke-width: 8;
+}
+
+[data-theme="light"] .timer-track {
+  stroke: rgba(0, 0, 0, 0.06);
+}
+
+.timer-progress {
+  fill: none;
+  stroke: url(#timerGradient);
+  stroke: var(--accent-purple);
+  stroke-width: 8;
+  stroke-linecap: round;
+  stroke-dasharray: 565.48; /* 2 * PI * 90 */
+  stroke-dashoffset: 0;
+  transition: stroke-dashoffset 1s linear;
+}
+
+.timer-digits-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  z-index: 2;
+}
+
+.timer-time {
+  font-family: var(--font-mono);
+  font-size: 3rem;
+  font-weight: 700;
+  letter-spacing: -1px;
+}
+
+.timer-phase-tag {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--accent-yellow);
+  background: rgba(234, 179, 8, 0.12);
+  padding: 4px 10px;
+  border-radius: 20px;
+}
+
+/* Controles de Inicio y Reinicio */
+.timer-controls {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin-bottom: 18px;
+}
+
+.btn-primary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: linear-gradient(135deg, var(--accent-purple), #7c3aed);
+  color: #ffffff;
+  border: none;
+  border-radius: var(--radius-md);
+  padding: 12px 24px;
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 4px 15px var(--accent-purple-glow);
+  transition: var(--transition-smooth);
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(139, 92, 246, 0.5);
+}
+
+.btn-primary.running {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4);
+}
+
+.btn-secondary {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-color);
+  color: var(--text-main);
+  border-radius: var(--radius-md);
+  padding: 12px 18px;
+  font-family: inherit;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: var(--transition-smooth);
+}
+
+.btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.1);
+  transform: translateY(-2px);
+}
+
+/* Barra de Sonido Relajante */
+.ambient-sound-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(0, 0, 0, 0.15);
+  padding: 12px 16px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+}
+
+.ambient-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.ambient-icon {
+  font-size: 1.4rem;
+}
+
+.ambient-name {
+  display: block;
+  font-size: 0.86rem;
+  font-weight: 700;
+}
+
+.ambient-desc {
+  display: block;
+  font-size: 0.74rem;
+  color: var(--text-muted);
+}
+
+.ambient-toggle-btn {
+  background: rgba(139, 92, 246, 0.15);
+  border: 1px solid var(--accent-purple);
+  color: var(--text-accent);
+  padding: 6px 14px;
+  border-radius: 50px;
+  font-family: inherit;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: var(--transition-smooth);
+}
+
+.ambient-toggle-btn.active {
+  background: var(--accent-purple);
+  color: #ffffff;
+  box-shadow: 0 0 12px var(--accent-purple-glow);
+}
+
+/* --- 10. Tarjeta de Misiones / To-Do --- */
+.task-counter {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  background: rgba(255, 255, 255, 0.06);
+  padding: 4px 10px;
+  border-radius: 20px;
+}
+
+.todo-input-group {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.todo-input-group input {
+  flex: 1;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 11px 16px;
+  color: var(--text-main);
+  font-family: inherit;
+  font-size: 0.88rem;
+  outline: none;
+  transition: var(--transition-smooth);
+}
+
+.todo-input-group input:focus {
+  border-color: var(--accent-purple);
+  box-shadow: 0 0 0 3px var(--accent-purple-glow);
+}
+
+.btn-add-task {
+  background: var(--accent-purple);
+  color: #ffffff;
+  border: none;
+  border-radius: var(--radius-md);
+  padding: 0 18px;
+  font-family: inherit;
+  font-weight: 800;
+  font-size: 0.88rem;
+  cursor: pointer;
+  transition: var(--transition-smooth);
+}
+
+.btn-add-task:hover {
+  background: #7c3aed;
+  transform: translateY(-2px);
+}
+
+.todo-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 230px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.todo-list::-webkit-scrollbar {
+  width: 5px;
+}
+
+.todo-list::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+}
+
+.todo-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  transition: var(--transition-smooth);
+}
+
+.todo-item:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.todo-label {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  flex: 1;
+}
+
+.todo-checkbox {
+  display: none;
+}
+
+.todo-custom-check {
+  width: 20px;
+  height: 20px;
+  border-radius: 6px;
+  border: 2px solid var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  color: transparent;
+  transition: var(--transition-smooth);
+}
+
+.todo-item.done .todo-custom-check {
+  background: var(--accent-green);
+  border-color: var(--accent-green);
+  color: #ffffff;
+}
+
+.todo-text {
+  font-size: 0.88rem;
+  color: var(--text-main);
+  transition: var(--transition-smooth);
+}
+
+.todo-item.done .todo-text {
+  text-decoration: line-through;
+  color: var(--text-muted);
+}
+
+.todo-tag {
+  font-size: 0.72rem;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: 20px;
+}
+
+.tag-exam {
+  background: rgba(236, 72, 153, 0.15);
+  color: var(--accent-pink);
+}
+
+.tag-git {
+  background: rgba(139, 92, 246, 0.15);
+  color: var(--accent-purple);
+}
+
+.tag-star {
+  background: rgba(234, 179, 8, 0.15);
+  color: var(--accent-yellow);
+}
+
+/* --- 11. Footer Semántico --- */
+.footer {
+  position: relative;
+  z-index: 1;
+  background: rgba(13, 17, 23, 0.85);
+  border-top: 1px solid var(--border-color);
+  padding: 24px 32px;
+  margin-top: 40px;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+[data-theme="light"] .footer {
+  background: rgba(253, 251, 247, 0.9);
+}
+
+.footer-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.footer-brand {
+  font-size: 0.92rem;
+}
+
+.footer-meta {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+}
+
+.footer-copy {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  text-align: right;
+}
+
+.footer-badges {
+  display: flex;
+  gap: 8px;
+  margin-top: 6px;
+  justify-content: flex-end;
+}
+
+.badge-tag {
+  font-size: 0.72rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-color);
+  padding: 2px 8px;
+  border-radius: 4px;
+  color: var(--text-muted);
+}
+
+/* --- 12. Media Queries (Diseño Responsivo) --- */
+@media (max-width: 960px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+    margin: 20px auto;
+  }
+
+  .nav-status {
+    display: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .navbar {
+    padding: 12px 16px;
+  }
+
+  .brand-subtitle {
+    display: none;
+  }
+
+  .btn-label {
+    display: none;
+  }
+
+  .dashboard-grid {
+    padding: 0 14px;
+  }
+
+  .card {
+    padding: 16px;
+  }
+
+  .timer-mode-chips {
+    flex-wrap: wrap;
+    border-radius: var(--radius-md);
+  }
+
+  .mode-chip {
+    flex: 1;
+    text-align: center;
+  }
+
+  .footer-content {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .footer-copy, .footer-badges {
+    text-align: center;
+    justify-content: center;
+  }
+}
