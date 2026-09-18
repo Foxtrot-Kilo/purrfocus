@@ -821,6 +821,23 @@ document.addEventListener('DOMContentLoaded', () => {
   laserTarget.addEventListener('click', catchLaser);
   closeLaserGameBtn.addEventListener('click', closeLaserGame);
 
+  // Modo Flotante / Arrastrable en Pantalla
+  const spawnFloatingMochiBtn = document.getElementById('spawnFloatingMochiBtn');
+  if (spawnFloatingMochiBtn) {
+    spawnFloatingMochiBtn.addEventListener('click', () => {
+      const existing = document.getElementById('mochi-universal-pet-container');
+      if (existing) {
+        existing.remove();
+        sayDialogue("Mochi ha vuelto a su camita principal. 🐾");
+      } else {
+        const script = document.createElement('script');
+        script.src = 'js/mochi-pet.js';
+        document.body.appendChild(script);
+        sayDialogue("¡Mochi liberado por la pantalla! 🚀 Arrástrame con el mouse o haz doble clic para que duerma.");
+      }
+    });
+  }
+
   // ==========================================
   // 9. TEMPORIZADOR POMODORO MEJORADO
   // ==========================================

@@ -270,6 +270,35 @@
           <span class="game-badge">JUGAR</span>
         </button>
       </div>
+
+      <!-- Modo Flotante / Arrastrable en Pantalla -->
+      <div class="floating-launcher-wrap">
+        <button id="spawnFloatingMochiBtn" class="btn-floating-mochi" title="Liberar a Mochi para que camine y lo arrastres por la pantalla">
+          <span class="float-icon">🚀</span>
+          <div class="float-btn-text">
+            <strong>Liberar a Mochi (Arrastrable)</strong>
+            <span>Pasea y duerme libremente por la pantalla</span>
+          </div>
+          <span class="float-badge">PROBAR</span>
+        </button>
+      </div>
+
+      <!-- Tarjeta Bookmarklet: Llevar a Mochi a Otras Páginas Web -->
+      <div class="bookmarklet-box">
+        <div class="bookmarklet-header">
+          <span class="bm-icon">🌐</span>
+          <span class="bm-title">Llevar a Mochi a otros sitios web</span>
+        </div>
+        <p class="bookmarklet-desc">
+          ¿Quieres que Mochi te acompañe en <strong>Google, YouTube, Wikipedia o GitHub</strong>? Arrastra este botón a tu barra de marcadores (<code>Ctrl + Shift + B</code>):
+        </p>
+        <div class="bookmarklet-link-wrap">
+          <a class="bookmarklet-button" href="javascript:(function(){const s=document.createElement('script');s.src='https://foxtrot-kilo.github.io/purrfocus/js/mochi-pet.js?t='+Date.now();document.body.appendChild(s);})();" title="Arrastra a tu barra de marcadores" onclick="alert('¡Arrastra este botón a tu barra de marcadores (Ctrl+Shift+B)! Luego haz clic en él en cualquier sitio web.'); return false;">
+            🐾 Mochi Web Pet
+          </a>
+          <span class="bm-hint">← Arrástrame a tus Marcadores</span>
+        </div>
+      </div>
     </section>
 
     <!-- COLUMNA DERECHA: REVOLUCIÓN DE ENFOQUE (POMODORO + TAREAS + AMBIENTE) -->
